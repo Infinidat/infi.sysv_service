@@ -1,6 +1,7 @@
 __import__("pkg_resources").declare_namespace(__name__)
 
 import logging
+import os
 logger = logging.getLogger()
 
 from infi.exceptools import InfiException
@@ -62,15 +63,7 @@ class InitService(object): # pylint: disable=R0922
             return pid
 
     def _is_process_alive(self, pid):
-        from psutil import Process, NoSuchProcess
-        result = False
-        try:
-            process = Process(pid)
-            result = True
-        except NoSuchProcess:
-            logger.error("No Such process, {}".format(pid))
-        return result
-
+        return os.path.exists("/proc/{}".format(pid))
 
 class LinuxInitService(InitService):
     def _run_service_subcommand(self, sub_command):
