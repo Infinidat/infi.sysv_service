@@ -12,6 +12,10 @@ class NoPidFile(InfiException):
 import logging # pylint: disable=W0403
 logger = logging.getLogger()
 
+def find_executable(executable_name):
+    locations = [location for location in os.environ.get("PATH", "").split(':') + ['/sbin', '/usr/sbin'] if location != '']
+    return [executable_path for executable_path in [os.path.join(dirname, executable_name) for dirname in locations] if os.path.exists(executable_name)][0]
+
 def execute_command(cmd, check_returncode=True): # pragma: no cover
     from infi.execute import execute
     logger.info("executing {}".format(cmd))
@@ -86,11 +90,11 @@ class LinuxInitService(InitService):
 
 class UbuntuInitService(LinuxInitService):
     def set_auto_start(self):
-        cmd = "update-rc.d -f {} defaults".format(self._service_name).split()
+        cmd = [find_executable("update-rc.d"), "-f", self._service_name, "defaults"]
         _ = execute_command(cmd)
 
 class RedHatInitService(LinuxInitService):
     def set_auto_start(self):
-        cmd = "chkconfig {} on".format(self._service_name).split()
+        cmd = [find_executable("chkconfig"), self._service_name, "on"]
         _ = execute_command(cmd)
 

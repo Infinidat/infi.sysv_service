@@ -1,6 +1,6 @@
 from infi import unittest
 from infi.pyutils.contexts import contextmanager
-from . import InitService, NoPidFile
+from . import InitService, NoPidFile, find_executable
 from mock import patch
 
 import os
@@ -59,3 +59,35 @@ class TestInitServiceBaseClass(unittest.TestCase):
             yield path
         finally:
             os.remove(path)
+
+class FindExecutableTestCase(unittest.TestCase):
+    def test_find_chkconfig__empty_environ(self):
+        EMPTY_DICT = {}
+        with patch("os.environ", new=EMPTY_DICT), patch("os.path.exists") as exists:
+            exists.return_value = True
+            actual = find_executable("chkconfig")
+        expected = "/sbin/chkconfig"
+        self.assertEquals(actual, expected)
+            
+    def test_find_chkconfig__empty_environ_but_in_usr(self):
+        EMPTY_DICT = {}
+        return_values = [True, False]
+        with patch("os.environ", new=EMPTY_DICT), patch("os.path.exists") as exists:
+            def side_effect(*args, **kwargs):
+                return return_values.pop()
+            exists.side_effect = side_effect
+            actual = find_executable("chkconfig")
+        expected = "/usr/sbin/chkconfig"
+        self.assertEquals(actual, expected)
+            
+    def test_find_chkconfig__from_environ(self):
+        EMPTY_DICT = {'PATH': '/sbin/foo:/usr/sbin/foo'}
+        return_values = [False, False, True, False]
+        with patch("os.environ", new=EMPTY_DICT), patch("os.path.exists") as exists:
+            def side_effect(*args, **kwargs):
+                return return_values.pop()
+            exists.side_effect = side_effect
+            actual = find_executable("chkconfig")
+        expected = "/usr/sbin/foo/chkconfig"
+        self.assertEquals(actual, expected)
+            
