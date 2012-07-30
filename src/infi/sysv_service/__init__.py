@@ -10,7 +10,7 @@ class NoPidFile(InfiException):
     pass
 
 import logging # pylint: disable=W0403
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 def find_executable(executable_name):
     locations = [location for location in os.environ.get("PATH", "").split(':') + ['/sbin', '/usr/sbin'] if location != '']
@@ -28,7 +28,6 @@ def execute_command(cmd, check_returncode=True): # pragma: no cover
         raise RuntimeError("execution of {} failed. see log file for more details".format(cmd))
     return process
 
-
 class InitService(object): # pylint: disable=R0922
     def __init__(self, service_name, process_name):
         self._service_name = service_name
@@ -37,8 +36,10 @@ class InitService(object): # pylint: disable=R0922
     def is_running(self):
         try:
             pid = self._get_pid_from_run_file()
+            logger.debug("Found PID: {!r}".format(pid))
             return self._is_process_alive(pid)
         except NoPidFile:
+            logger.exception("No PID file")
             return False
 
     def start(self): # pragma: no cover
@@ -67,7 +68,15 @@ class InitService(object): # pylint: disable=R0922
             return pid
 
     def _is_process_alive(self, pid):
-        return os.path.exists("/proc/{}".format(pid))
+        alive = os.path.exists("/proc/{}".format(pid))
+        logger.debug("PID {} is {} running".format(pid, '' if alive else 'not'))
+        return alive
+
+    def __repr__(self):
+        try:
+            return "<{}(service_name={!r}, process_name={!r})>".format(self.__class__.__name__, self._service_name, self._process_name)
+        except:
+            return super(InitService, self).__repr__()
 
 class LinuxInitService(InitService):
     def _run_service_subcommand(self, sub_command):
