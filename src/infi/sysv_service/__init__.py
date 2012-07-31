@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def find_executable(executable_name):
     locations = [location for location in os.environ.get("PATH", "").split(':') + ['/sbin', '/usr/sbin'] if location != '']
-    return [executable_path for executable_path in [os.path.join(dirname, executable_name) for dirname in locations] if os.path.exists(executable_name)][0]
+    return [executable_path for executable_path in [os.path.join(dirname, executable_name) for dirname in locations] if os.path.exists(executable_path)][0]
 
 def execute_command(cmd, check_returncode=True): # pragma: no cover
     from infi.execute import execute
