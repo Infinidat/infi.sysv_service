@@ -87,7 +87,7 @@ class LinuxInitService(InitService):
         self._run_service_subcommand("start")
         # The pid file is not created immediately
         from time import sleep
-        sleep(1)
+        sleep(3)
 
     def stop(self):
         self._run_service_subcommand("stop")
