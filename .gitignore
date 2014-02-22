@@ -40,3 +40,4 @@ bootstrap.py
 
 src/infi/sysv_service/__version__.py
 .cache
+eggs
