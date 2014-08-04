@@ -57,9 +57,13 @@ class InitService(object): # pylint: disable=R0922
     def _get_run_file_path(self):
         from os.path import exists, join, sep
         pid_filepath = join(sep , "var", "run", "{}.pid".format(self._process_name))
-        if not exists(pid_filepath):
+        pid_filewithfolderpath = join(sep , "var", "run", self._process_name, "{}.pid".format(self._process_name))
+        if exists(pid_filepath):
+            return pid_filepath
+        elif exists(pid_filewithfolderpath):
+            return pid_filewithfolderpath
+        else:
             raise NoPidFile("pid file {} does not exist, service is not running?".format(pid_filepath))
-        return pid_filepath
 
     def _get_pid_from_run_file(self):
         pid_filepath = self._get_run_file_path()
