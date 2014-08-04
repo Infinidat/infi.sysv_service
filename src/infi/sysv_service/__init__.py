@@ -99,7 +99,12 @@ class LinuxInitService(InitService):
     def is_auto_start(self):
         from glob import glob
         from os.path import join, sep
-        return len(glob(join(sep, "etc", "rc*.d", "S*{}".format(self._service_name)))) > 0
+        if len(glob(join(sep, "etc", "rc*.d", "S*{}".format(self._service_name)))) > 0:
+            return True
+        elif len(glob(join(sep, "etc", "systemd", "system", "*.target.wants", "{}.service".format(self._service_name)))) > 0:
+            return True
+        else:
+            return False
 
 class UbuntuInitService(LinuxInitService):
     def set_auto_start(self):
