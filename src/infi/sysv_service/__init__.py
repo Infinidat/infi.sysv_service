@@ -57,9 +57,13 @@ class InitService(object): # pylint: disable=R0922
     def _get_run_file_path(self):
         from os.path import exists, join, sep
         pid_filepath = join(sep , "var", "run", "{}.pid".format(self._process_name))
-        if not exists(pid_filepath):
+        pid_filewithfolderpath = join(sep , "var", "run", self._process_name, "{}.pid".format(self._process_name))
+        if exists(pid_filepath):
+            return pid_filepath
+        elif exists(pid_filewithfolderpath):
+            return pid_filewithfolderpath
+        else:
             raise NoPidFile("pid file {} does not exist, service is not running?".format(pid_filepath))
-        return pid_filepath
 
     def _get_pid_from_run_file(self):
         pid_filepath = self._get_run_file_path()
@@ -95,7 +99,12 @@ class LinuxInitService(InitService):
     def is_auto_start(self):
         from glob import glob
         from os.path import join, sep
-        return len(glob(join(sep, "etc", "rc*.d", "S*{}".format(self._service_name)))) > 0
+        if len(glob(join(sep, "etc", "rc*.d", "S*{}".format(self._service_name)))) > 0:
+            return True
+        elif len(glob(join(sep, "etc", "systemd", "system", "*.target.wants", "{}.service".format(self._service_name)))) > 0:
+            return True
+        else:
+            return False
 
 class UbuntuInitService(LinuxInitService):
     def set_auto_start(self):
