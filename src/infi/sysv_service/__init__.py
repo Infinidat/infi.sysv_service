@@ -103,6 +103,8 @@ class LinuxInitService(InitService):
             return True
         elif len(glob(join(sep, "etc", "systemd", "system", "*.target.wants", "{}.service".format(self._service_name)))) > 0:
             return True
+        elif len(glob(join(sep, "etc", "rc.d", "rc*.d", "S*{}".format(self._service_name)))) > 0:
+            return True
         else:
             return False
 
@@ -116,3 +118,7 @@ class RedHatInitService(LinuxInitService):
         cmd = [find_executable("chkconfig"), self._service_name, "on"]
         _ = execute_command(cmd)
 
+class SuseInitService(LinuxInitService):
+    def set_auto_start(self):
+        cmd = [find_executable("chkconfig"), self._service_name, "on"]
+        _ = execute_command(cmd)
