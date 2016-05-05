@@ -4,9 +4,7 @@ import logging
 import os
 logger = logging.getLogger()
 
-from infi.exceptools import InfiException
-
-class NoPidFile(InfiException):
+class NoPidFile(Exception):
     pass
 
 import logging # pylint: disable=W0403
