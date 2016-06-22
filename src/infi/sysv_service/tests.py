@@ -1,5 +1,5 @@
 from infi import unittest
-from infi.pyutils.contexts import contextmanager
+from contextlib import contextmanager
 from . import InitService, NoPidFile, find_executable
 from mock import patch
 from logging import getLogger
