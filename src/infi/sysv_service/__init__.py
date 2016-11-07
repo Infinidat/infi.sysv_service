@@ -120,3 +120,22 @@ class SuseInitService(LinuxInitService):
     def set_auto_start(self):
         cmd = [find_executable("chkconfig"), self._service_name, "on"]
         _ = execute_command(cmd)
+
+class LinuxSystemdService(object):
+    def __init__(self, service_name, process_name=None):
+        self._service_name = service_name
+
+    def is_running(self):
+        return execute_command(["systemctl", "status", self._service_name], False).get_returncode() == 0
+
+    def start(self):
+        execute_command(["systemctl", "start", self._service_name])
+
+    def stop(self):
+        execute_command(["systemctl", "stop", self._service_name])
+
+    def is_auto_start(self):
+        return execute_command(["systemctl", "is-enabled", self._service_name], False).get_returncode() == 0
+
+    def set_auto_start(self):
+        execute_command(["systemctl", "enable", self._service_name])
