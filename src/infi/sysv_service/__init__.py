@@ -38,7 +38,7 @@ class InitService(object): # pylint: disable=R0922
             return self._is_process_alive(pid)
         except NoPidFile:
             logger.exception("No PID file")
-            return False
+            return self._find_process_with_psutil()
 
     def start(self): # pragma: no cover
         raise NotImplementedError()
@@ -51,6 +51,13 @@ class InitService(object): # pylint: disable=R0922
 
     def set_auto_start(self): # pragma: no cover
         raise NotImplementedError()
+
+    def _find_process_with_psutil(self):
+        import psutil
+        for process in psutil.process_iter():
+            if process.name() == self._service_name:
+                return True
+        return False
 
     def _get_run_file_path(self):
         from os.path import exists, join, sep
