@@ -98,6 +98,12 @@ class LinuxInitService(InitService):
         from time import sleep
         sleep(3)
 
+    def force_start(self):
+        self._run_service_subcommand("force-start")
+        # The pid file is not created immediately
+        from time import sleep
+        sleep(3)
+
     def stop(self):
         self._run_service_subcommand("stop")
 
