@@ -144,6 +144,9 @@ class LinuxSystemdService(object):
     def start(self):
         execute_command(["systemctl", "start", self._service_name])
 
+    def force_start(self):
+        self.start()
+
     def stop(self):
         execute_command(["systemctl", "stop", self._service_name])
 
