@@ -37,7 +37,7 @@ class InitService(object): # pylint: disable=R0922
             logger.debug("Found PID: {!r}".format(pid))
             return self._is_process_alive(pid)
         except NoPidFile:
-            logger.exception("No PID file")
+            logger.debug("No PID file")
             return self._find_process_with_psutil()
 
     def start(self): # pragma: no cover
@@ -55,7 +55,7 @@ class InitService(object): # pylint: disable=R0922
     def _find_process_with_psutil(self):
         import psutil
         for process in psutil.process_iter():
-            if process.name() == self._service_name:
+            if process.name() == self._process_name:
                 return True
         return False
 
@@ -88,18 +88,20 @@ class InitService(object): # pylint: disable=R0922
             return super(InitService, self).__repr__()
 
 class LinuxInitService(InitService):
-    def _run_service_subcommand(self, sub_command):
+    def _run_service_subcommand(self, sub_command, check_returncode=True):
         cmd = "service {} {}".format(self._service_name, sub_command).split()
-        _ = execute_command(cmd)
+        _ = execute_command(cmd, check_returncode)
 
     def start(self):
-        self._run_service_subcommand("start")
+        # We can't rely on the return codes of Init Scripts:
+        self._run_service_subcommand("start", check_returncode=False)
         # The pid file is not created immediately
         from time import sleep
         sleep(3)
+        return self.is_running()
 
     def force_start(self):
-        self._run_service_subcommand("force-start")
+        self._run_service_subcommand("force-start", check_returncode=False)
         # The pid file is not created immediately
         from time import sleep
         sleep(3)
