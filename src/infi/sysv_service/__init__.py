@@ -118,6 +118,8 @@ class LinuxInitService(InitService):
             return True
         elif len(glob(join(sep, "etc", "rc.d", "rc*.d", "S*{}".format(self._service_name)))) > 0:
             return True
+        elif len(glob(join(sep, "etc", "rc.d", "boot.d", "S*{}".format(self._service_name)))) > 0:
+            return True
         else:
             return False
 
