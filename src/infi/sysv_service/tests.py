@@ -80,7 +80,7 @@ class FindExecutableTestCase(unittest.TestCase):
             exists.return_value = True
             actual = find_executable("chkconfig")
         expected = "/sbin/chkconfig"
-        self.assertEquals(actual, expected)
+        self.assertEqual(actual, expected)
 
     def test_find_chkconfig__empty_environ_but_in_usr(self):
         EMPTY_DICT = {}
@@ -91,7 +91,7 @@ class FindExecutableTestCase(unittest.TestCase):
             exists.side_effect = side_effect
             actual = find_executable("chkconfig")
         expected = "/usr/sbin/chkconfig"
-        self.assertEquals(actual, expected)
+        self.assertEqual(actual, expected)
 
     def test_find_chkconfig__from_environ(self):
         EMPTY_DICT = {'PATH': '/sbin/foo:/usr/sbin/foo'}
@@ -102,5 +102,5 @@ class FindExecutableTestCase(unittest.TestCase):
             exists.side_effect = side_effect
             actual = find_executable("chkconfig")
         expected = "/usr/sbin/foo/chkconfig"
-        self.assertEquals(actual, expected)
+        self.assertEqual(actual, expected)
 
